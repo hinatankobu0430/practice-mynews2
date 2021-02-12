@@ -19,6 +19,8 @@ Rootingの設定をひとまとめにしている*/
 //ログインしていない場合のリダイレクト処理に、middlewareを利用する。
 Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function(){
     Route::get('news/create', 'Admin\NewsController@add');
+    Route::post('news/create', 'Admin\NewsController@create');
+    
 });
 Auth::routes();
 
