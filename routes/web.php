@@ -16,6 +16,10 @@ Route::get('/', function () {
 });
 /*group化をすることで、無名関数function(){}の中の設定を連想配列['prefix' => 'admin']に適用して
 Rootingの設定をひとまとめにしている*/
-Route::group(['prefix' => 'admin'], function(){
+//ログインしていない場合のリダイレクト処理に、middlewareを利用する。
+Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function(){
     Route::get('news/create', 'Admin\NewsController@add');
 });
+Auth::routes();
+
+Route::get('/home', 'HomeController@index')->name('home');
