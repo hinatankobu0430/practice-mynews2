@@ -14,3 +14,7 @@
 Route::get('/', function () {
     return view('welcome');
 });
+//group化をすることで、無名関数function(){}の中の設定を連想配列['prefix' => 'admin']に適用している
+Route::group(['prefix' => 'admin'], function(){
+    Route::get('news/create', 'Admin\NewsController@add');
+});
