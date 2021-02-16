@@ -61,4 +61,55 @@ class NewsController extends Controller
         //ユーザーが入力した文字列($cond_title)を渡し、ページを開く。
         return view('admin.news.index', ['posts' => $posts,'cond_title' => $cond_title]);
     }
+    
+    public function edit(Request $request)
+    {
+        //News Modelからデータを取得する。
+        $news = News::find($request->id);
+        if(empty($news)){
+            abort(404);
+        }
+        return view('admin.news.edit', ['news_form'=>$news]);
+    }
+    //投稿したデータを更新するメソッド
+    public function update(Request $request)
+    {
+        //validationをかける
+        $this->validate($request, News::$rules);
+        //News Modelからデータを取得する
+        $news = News::find($request->id);
+        //送信されてきたファームデータを格納する
+        $news_form = $request->all();
+        
+        //画像を変更したときにエラーにならない設定。
+        if($request->remove == 'true'){
+            $news_form['image_path'] =null;
+        }elseif($request->file('image')){
+            $path=$request->file('image')->store('public/image');
+            $news_form['image_path']=basaname($path);
+        }else{
+            $news_form['image_path']=$news->image_path;
+        }
+        
+        unset($news_form['image']);
+        unset($news_form['remove']);
+        unset($news_form['_token']);
+        
+        //メソッドチェーンを使って...該当するデータを上書きして保存
+        $news->fill($news_form)->save();
+        
+        //index.blade.phpにリダイレクト。
+        return redirect('admin/news');
+    }
+    
+    public function delete(Request $request)
+    {
+        //該当するNews Modelを取得
+        $news =News::find($request->id);
+        //deleteメソッドで削除。
+        $news->delete();
+        
+        //index.blade.phpにリダイレクト
+        return redirect('admin/news/');
+    }
 }
