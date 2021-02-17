@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 use App\News;
+use App\History;
+use Carbon\Carbon;
 
 class NewsController extends Controller
 //自分が実装したい機能をここに入れていく。
@@ -14,7 +16,7 @@ class NewsController extends Controller
     {
         return view('admin.news.create');
     }
-    
+    //ニュースの新規作成メソッド
     public function create(Request $request)
     {
         //Validationを行う。
@@ -45,7 +47,7 @@ class NewsController extends Controller
         return redirect('admin/news/create');
         
     }
-    
+    //index.blade.phpのindex画面に反映するメソッド
     public function index(Request $request)
     {
         $cond_title = $request->cond_title;
@@ -61,13 +63,13 @@ class NewsController extends Controller
         //ユーザーが入力した文字列($cond_title)を渡し、ページを開く。
         return view('admin.news.index', ['posts' => $posts,'cond_title' => $cond_title]);
     }
-    
+    //編集メソッド
     public function edit(Request $request)
     {
         //News Modelからデータを取得する。
         $news = News::find($request->id);
         if(empty($news)){
-            abort(404);
+            abort(404);//ニュースが空なら404エラーを表示する。
         }
         return view('admin.news.edit', ['news_form'=>$news]);
     }
@@ -98,10 +100,16 @@ class NewsController extends Controller
         //メソッドチェーンを使って...該当するデータを上書きして保存
         $news->fill($news_form)->save();
         
-        //index.blade.phpにリダイレクト。
-        return redirect('admin/news');
+        /*更新ボタン押下後、History Modelのedited_atとして記録
+        Carbonで現在時刻を取得し、編集履歴に時刻の表示・保存*/
+        $history = new History;
+        $history->news_id = $news->id;
+        $history->edited_at = Carbon::now();
+        $history->save();
+        
+        return redirect('admin/news/');
     }
-    
+    //投稿したデータを削除するメソッド
     public function delete(Request $request)
     {
         //該当するNews Modelを取得
