@@ -21,4 +21,9 @@ class NewsController extends Controller
     //viewテンプレートにheadline、posts、という変数を渡している。
     return view('news.index',['headline' => $headline, 'posts' => $posts]);
     }
+    
+    public function apiview()
+    {
+        return view('news.apiview');
+    }
 }
